@@ -1,0 +1,36 @@
+Parameters:
+  InstTypeParam:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t3.large
+      - t3.medium
+    Description:
+      Ec2 Instance type
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Allows to specify a key-pair for creation
+Mappings:
+  ImageIdMapping:
+    us-east-1:
+      AMI: ami-0dc2d3e4c0f9ebd18
+    us-east-2:
+      AMI: ami-02de934ca4f3289e0
+    us-west-2:
+      AMI: ami-01ee617c4327490d3
+Resources:
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType:
+        Ref: InstTypeParam
+      ImageId:
+        Fn::FindInMap:
+          - ImageIdMapping
+          - !Ref AWS::Region
+          - AMI
+      Tags:
+        - Key: Name
+          Value: !Join [ " ", [ Ec2, with, Mappings, for, !Ref AWS::Region ] ]
+      KeyName: !Ref KeyName
